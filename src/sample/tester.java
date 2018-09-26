@@ -49,7 +49,6 @@ public class tester {
         InetSocketAddress receiveraddress = new InetSocketAddress(targetipadd, targetport);
         System.out.println("Enter \"SEND\" to type a message to send to peers or \"STOP\" to end the program");
 
-
         boolean run = true;
         while(run) {
             switch (scanner.next()) {
@@ -71,47 +70,4 @@ public class tester {
     }
 
 
-}
-
-class ConnListen implements Runnable{
-
-    DatagramSocket mysocket;
-    boolean running;
-
-    public ConnListen(DatagramSocket mysocket){
-        this.mysocket = mysocket;
-    }
-
-    @Override
-    public void run() {
-        byte[] buffer = new byte[1024];
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-
-        running = true;
-        while(running)
-        {
-            try
-            {
-                mysocket.receive(packet);
-                String message = new String(buffer, 0, packet.getLength());
-                //String message = new String(packet.getData()).trim();
-                System.out.println(packet.getAddress().getHostAddress() + " said: " + message);
-            }
-            catch (Exception e) {
-            }
-
-        }
-    }
-
-    public void start()
-    {
-        Thread thread = new Thread(this);
-        thread.start();
-    }
-
-    public void stop()
-    {
-        running = false;
-        mysocket.close();
-    }
 }

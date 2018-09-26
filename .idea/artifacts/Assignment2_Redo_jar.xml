@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Assignment2_Redo:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Assignment2_Redo_jar</output-path>
+    <root id="archive" name="Assignment2_Redo.jar">
+      <element id="module-output" name="Assignment2_Redo" />
+    </root>
+  </artifact>
+</component>

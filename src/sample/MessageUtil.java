@@ -2,13 +2,20 @@ package sample;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.InetAddress;
 
 public class MessageUtil {
     public enum MessageType {
         DISCOVER, DISCOVERRESPONSE, MESSAGE, DISCONNECT
     }
 
+    /**
+     * Gets tagged messages to be sent out
+     * Note: Most types would not require a content (e.g. DISCOVER can have null content because address)
+     *
+     * @param type type of message
+     * @param content content of message
+     * @return
+     */
     public static String getMessage(MessageType type, String content){
         switch(type){
             case DISCOVER:
@@ -30,31 +37,43 @@ public class MessageUtil {
         String address = packet.getAddress().getHostAddress();
         P2PConnection connection = P2PConnection.getConnection();
 
-        // DISCOVER:
+        // DISCOVER: (username)
         if (tag.equalsIgnoreCase("DISCOVER")){
-            // TODO: Send back discoverresponse
-            // TODO: Add to list of discovered hosts
             try {
+                // Respond to the discovery message
                 connection.sendMessage(address, getMessage(MessageType.DISCOVERRESPONSE, null));
             } catch (IOException e) {
                 e.printStackTrace();
             }
             connection.addHost(address);
+
+            Log.printLog("Discovered host " + address + " with username " + body);
+
+            // TODO: Add Discovered Procedure For FX (KJ)
+            // E.g. Print on screen "xxx joined the network"
         }
         // DISCOVERRESPONSE:
         else if (tag.equalsIgnoreCase("DISCOVERRESPONSE")){
-            // TODO: Add host to list of discovered hosts
             connection.addHost(address);
+            Log.printLog("Discovered response from host " + address );
+
+            // TODO: Add Discovered Procedure For FX (KJ)
+            // E.g. Print on screen "xxx joined the network"
         }
         // MESSAGE: CONTENT
         else if (tag.equalsIgnoreCase("MESSAGE")){
-            // TODO: Display content
-            System.out.println(address + " said: " + body);
+            Log.printLog(address + " said " + body);
+
+            // TODO: Add Message Received For FX (KJ)
+            // E.g. Print on screen "xxx: message"
         }
         // DISCONNECT:
         else if (tag.equalsIgnoreCase("DISCONNECT")){
-            // TODO: Remove host from discovered hosts list
             connection.removeHost(address);
+            Log.printLog("Host " + address + " disconnected from network");
+
+            // TODO: Add Disconnect Procedure For FX (KJ)
+            // E.g. Print on screen "xxx disconnected from network"
         }
     }
 }

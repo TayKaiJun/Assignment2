@@ -49,7 +49,6 @@ public class tester {
         InetSocketAddress receiveraddress = new InetSocketAddress(targetipadd, targetport);
         System.out.println("Enter \"SEND\" to type a message to send to peers or \"STOP\" to end the program");
 
-
         boolean run = true;
         while(run) {
             switch (scanner.next()) {

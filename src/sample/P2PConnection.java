@@ -173,6 +173,10 @@ public class P2PConnection {
         socket = null;
         connListen = null;
     }
+
+    public boolean isNull(){
+        return p2pConnection == null || connListen == null;
+    }
 }
 
 

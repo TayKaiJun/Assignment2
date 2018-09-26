@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MessageUtil {
-    public static final Map<String, String> mapIpToUsername = new HashMap<String, String>();
+    private static final Map<String, String> mapIpToUsername = new HashMap<String, String>();
 
     public enum MessageType {
         DISCOVER, DISCOVERRESPONSE, MESSAGE, DISCONNECT
@@ -55,8 +55,7 @@ public class MessageUtil {
 
             Log.printLog("Discovered host " + mapIpToUsername.get(address) + "(" + address + ")");
 
-            // TODO: Add Discovered Procedure For FX (KJ)
-            // E.g. Print on screen "xxx joined the network"
+            Controller.writeMessage(mapIpToUsername.get(address) + " has joined the network. Say hi!\n");
         }
         // DISCOVERRESPONSE:
         else if (tag.equalsIgnoreCase("DISCOVERRESPONSE")){
@@ -65,15 +64,13 @@ public class MessageUtil {
             mapIpToUsername.put(address, body);
             Log.printLog("Discovered response from " + mapIpToUsername.get(address) + "(" + address + ")");
 
-            // TODO: Add Discovered Procedure For FX (KJ)
-            // E.g. Print on screen "xxx joined the network"
+            Controller.writeMessage(mapIpToUsername.get(address) + " has joined the network. Say hi!\n");
         }
         // MESSAGE: CONTENT
         else if (tag.equalsIgnoreCase("MESSAGE")){
             Log.printLog(mapIpToUsername.get(address) + "(" + address + ")" + " said " + body);
 
-            // TODO: Add Message Received For FX (KJ)
-            // E.g. Print on screen "xxx: message"
+            Controller.writeMessage(mapIpToUsername.get(address) + ": " + body + "\n");
         }
         // DISCONNECT:
         else if (tag.equalsIgnoreCase("DISCONNECT")){
@@ -81,7 +78,11 @@ public class MessageUtil {
             Log.printLog("Host " + mapIpToUsername.get(address) + "(" + address + ")" + " disconnected from network ");
 
             // TODO: Add Disconnect Procedure For FX (KJ)
-            // E.g. Print on screen "xxx disconnected from network"
+            Controller.writeMessage(mapIpToUsername.get(address) + " left.\n");
         }
+    }
+
+    public static String getHostName(String ipaddress){
+        return mapIpToUsername.get(ipaddress);
     }
 }

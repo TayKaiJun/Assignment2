@@ -4,20 +4,43 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
+
+import java.util.Optional;
 
 public class Main extends Application {
 
+    Stage primaryStage;
+
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-        primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root, 300, 275));
+        String initUsername = "";
+        TextInputDialog dialog = new TextInputDialog("new user");
+        dialog.setTitle("P2P Messenger");
+        dialog.setHeaderText("Welcome to the P2P chatroom!");
+        dialog.setContentText("Please enter a username:");
+        Optional<String> result = dialog.showAndWait();
+        if (result.isPresent()){
+            initUsername = result.get();
+        }
+
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("messenger.fxml"));
+        Parent root = loader.load();
+        Controller controller = loader.getController();
+        controller.initialize(this, initUsername);
+
+        primaryStage.setTitle("P2P Messenger");
+        primaryStage.setScene(new Scene(root, 600, 800));
         primaryStage.show();
+        this.primaryStage = primaryStage;
+    }
+
+    public void stop(){
+        primaryStage.close();
     }
 
 
-    public static void main(String[] args) {
-        launch(args);
-    }
+    public static void main(String[] args) {launch(args);}
 }

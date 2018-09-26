@@ -7,13 +7,17 @@ import java.util.Scanner;
 
 public class Test {
     public static void main(String[] args){
-        P2PConnection connection = P2PConnection.getConnection();
-
-        // Discovery
-        connection.broadcastToAllHostsOnNetwork(MessageUtil.getMessage(MessageUtil.MessageType.DISCOVER, null));
-
         boolean run = true;
         Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Please enter host name: ");
+        String hostName = scanner.next();
+
+        P2PConnection connection = P2PConnection.getConnection();
+        connection.setHostName(hostName);
+
+        // Discovery
+        connection.broadcastToAllHostsOnNetwork(MessageUtil.getMessage(MessageUtil.MessageType.DISCOVER, hostName));
 
         while(run) {
             switch (scanner.next()) {

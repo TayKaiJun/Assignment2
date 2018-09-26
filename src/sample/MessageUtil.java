@@ -2,8 +2,12 @@ package sample;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MessageUtil {
+    public static final Map<String, String> mapIpToUsername = new HashMap<String, String>();
+
     public enum MessageType {
         DISCOVER, DISCOVERRESPONSE, MESSAGE, DISCONNECT
     }
@@ -30,7 +34,7 @@ public class MessageUtil {
         return null;
     }
 
-    public static void processMessage(DatagramPacket packet, String message){
+    public static void processMessage(DatagramPacket packet, String message, String hostName){
         String[] messageSplit = message.split(":", 2);
         String tag = messageSplit[0];
         String body = messageSplit[1];
@@ -41,13 +45,15 @@ public class MessageUtil {
         if (tag.equalsIgnoreCase("DISCOVER")){
             try {
                 // Respond to the discovery message
-                connection.sendMessage(address, getMessage(MessageType.DISCOVERRESPONSE, null));
+                connection.sendMessage(address, getMessage(MessageType.DISCOVERRESPONSE, hostName));
             } catch (IOException e) {
                 e.printStackTrace();
             }
             connection.addHost(address);
+            // Puts IP and address map
+            mapIpToUsername.put(address, body);
 
-            Log.printLog("Discovered host " + address + " with username " + body);
+            Log.printLog("Discovered host " + mapIpToUsername.get(address) + "(" + address + ")");
 
             // TODO: Add Discovered Procedure For FX (KJ)
             // E.g. Print on screen "xxx joined the network"
@@ -55,14 +61,16 @@ public class MessageUtil {
         // DISCOVERRESPONSE:
         else if (tag.equalsIgnoreCase("DISCOVERRESPONSE")){
             connection.addHost(address);
-            Log.printLog("Discovered response from host " + address );
+            // Puts IP and address map
+            mapIpToUsername.put(address, body);
+            Log.printLog("Discovered response from " + mapIpToUsername.get(address) + "(" + address + ")");
 
             // TODO: Add Discovered Procedure For FX (KJ)
             // E.g. Print on screen "xxx joined the network"
         }
         // MESSAGE: CONTENT
         else if (tag.equalsIgnoreCase("MESSAGE")){
-            Log.printLog(address + " said " + body);
+            Log.printLog(mapIpToUsername.get(address) + "(" + address + ")" + " said " + body);
 
             // TODO: Add Message Received For FX (KJ)
             // E.g. Print on screen "xxx: message"
@@ -70,7 +78,7 @@ public class MessageUtil {
         // DISCONNECT:
         else if (tag.equalsIgnoreCase("DISCONNECT")){
             connection.removeHost(address);
-            Log.printLog("Host " + address + " disconnected from network");
+            Log.printLog("Host " + mapIpToUsername.get(address) + "(" + address + ")" + " disconnected from network ");
 
             // TODO: Add Disconnect Procedure For FX (KJ)
             // E.g. Print on screen "xxx disconnected from network"

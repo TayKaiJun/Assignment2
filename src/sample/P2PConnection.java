@@ -20,6 +20,7 @@ public class P2PConnection {
     private int sourceSubnetValue;
     private DatagramSocket socket;
     private ConnListen connListen;
+    private String hostName;
 
     public P2PConnection() throws SocketException {
         discoveredHosts = new HashSet<>();
@@ -34,6 +35,24 @@ public class P2PConnection {
 
         connListen = new ConnListen(socket);
         connListen.start();
+    }
+
+    /**
+     * Gets the host name
+     * @return host name
+     */
+    public String getHostName(){
+        return hostName;
+    }
+
+    /**
+     * Sets the host name
+     * Call rediscover after setting to update username
+     * @param hostName host name
+     */
+    public void setHostName(String hostName){
+        this.hostName = hostName;
+        connListen.setHostName(hostName);
     }
 
     /**
@@ -162,6 +181,15 @@ class ConnListen implements Runnable{
     DatagramSocket socket;
     boolean running;
     Thread thread;
+    String hostName;
+
+    /**
+     * Sets the host name
+     * @param hostName host name
+     */
+    public void setHostName(String hostName){
+        this.hostName = hostName;
+    }
 
     public ConnListen(DatagramSocket socket){
         this.socket = socket;
@@ -181,7 +209,7 @@ class ConnListen implements Runnable{
             try {
                 socket.receive(packet);
                 String message = new String(buffer, 0, packet.getLength());
-                MessageUtil.processMessage(packet, message);
+                MessageUtil.processMessage(packet, message, hostName);
             }
             catch (Exception e) {
             }

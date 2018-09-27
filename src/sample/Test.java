@@ -17,7 +17,7 @@ public class Test {
         connection.setHostName(hostName);
 
         // Discovery
-        connection.broadcastToAllHostsOnNetwork(MessageUtil.getMessage(MessageUtil.MessageType.DISCOVER, hostName));
+        connection.broadcastToAllHostsOnNetwork(MessageUtil.getMessage(MessageUtil.MessageType.DISCOVER, hostName),null, null);
 
         while(run) {
             switch (scanner.next()) {
@@ -25,11 +25,11 @@ public class Test {
                     // Sends out new message to discovered hosts
                     System.out.print("Please enter the message to be sent: ");
                     String message = scanner.next();
-                    connection.broadcastToDiscoveredHosts(MessageUtil.getMessage(MessageUtil.MessageType.MESSAGE, message));
+                    connection.broadcastToDiscoveredHosts(MessageUtil.getMessage(MessageUtil.MessageType.MESSAGE, message),null, null);
                     break;
                 case "STOP":
                     // Stops listening to the socket and inform all discovered hosts about disconnection
-                    connection.stop();
+                    connection.stop(null, null);
                     run = false;
                     break;
                 case "GETHOSTS":
@@ -40,7 +40,7 @@ public class Test {
                 case "REDISCOVER":
                     // Removes all discovered hosts and send out discovery again to all on network
                     connection.removeAllHost();
-                    connection.broadcastToAllHostsOnNetwork(MessageUtil.getMessage(MessageUtil.MessageType.DISCOVER, null));
+                    connection.broadcastToAllHostsOnNetwork(MessageUtil.getMessage(MessageUtil.MessageType.DISCOVER, null),null, null);
                     break;
             }
         }

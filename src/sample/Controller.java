@@ -36,8 +36,10 @@ public class Controller {
         this.username = username;
         referenceMessages = messages;
 
-        sourceConnection = new P2PConnection();
+        sourceConnection = P2PConnection.getConnection();
         sourceConnection.setHostName(username);
+        // Discovery
+        sourceConnection.broadcastToAllHostsOnNetwork(MessageUtil.getMessage(MessageUtil.MessageType.DISCOVER, username));
 
         changeUsername.setOnAction(event ->{
             TextInputDialog dialog = new TextInputDialog("new user");
@@ -49,14 +51,11 @@ public class Controller {
                 this.username = result.get();
             }
 
-            sourceConnection.stop();
-            inputField.setDisable(true);
-            messages.appendText("You have disconnected from the network.\nPlease reconnect to continue chatting!");
+            sourceConnection.setHostName(this.username);
+            sourceConnection.removeAllHost();
+            sourceConnection.broadcastToAllHostsOnNetwork(MessageUtil.getMessage(MessageUtil.MessageType.DISCOVER, this.username));
 
-            //TODO fix old connection not disconnecting
-            //sourceConnection = P2PConnection.getConnection();
-            //sourceConnection.setHostName(this.username);
-            //sourceConnection.broadcastToAllHostsOnNetwork(MessageUtil.getMessage(MessageUtil.MessageType.DISCOVER, null));
+            messages.appendText("You have changed your username to " + this.username + " !\n");
         });
 
         reconnect.setOnAction(event -> {
@@ -72,12 +71,11 @@ public class Controller {
 
             sourceConnection = P2PConnection.getConnection();
             sourceConnection.setHostName(this.username);
-            sourceConnection.broadcastToAllHostsOnNetwork(MessageUtil.getMessage(MessageUtil.MessageType.DISCOVER, null));
+            sourceConnection.broadcastToAllHostsOnNetwork(MessageUtil.getMessage(MessageUtil.MessageType.DISCOVER, this.username));
         });
 
         disconnect.setOnAction(event -> {
             sourceConnection.stop();
-            main.stop();
         });
 
         showConnections.setOnAction(event -> {

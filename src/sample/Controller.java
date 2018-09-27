@@ -6,7 +6,6 @@ import javafx.scene.control.*;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 public class Controller {
 
@@ -34,6 +33,7 @@ public class Controller {
 
         //this.main = main;
         this.username = username;
+        messages.setEditable(false);
         referenceMessages = messages;
 
         sourceConnection = P2PConnection.getConnection();
@@ -50,6 +50,9 @@ public class Controller {
             if (result.isPresent()){
                 this.username = result.get();
             }
+            else{
+                return;
+            }
 
             sourceConnection.setHostName(this.username);
             sourceConnection.removeAllHost();
@@ -60,15 +63,6 @@ public class Controller {
 
         reconnect.setOnAction(event -> {
             inputField.setDisable(false);
-            if(!sourceConnection.isNull())
-                sourceConnection.stop();
-
-            try {
-                TimeUnit.MILLISECONDS.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
             sourceConnection = P2PConnection.getConnection();
             sourceConnection.setHostName(this.username);
             sourceConnection.broadcastToAllHostsOnNetwork(MessageUtil.getMessage(MessageUtil.MessageType.DISCOVER, this.username));
@@ -76,6 +70,7 @@ public class Controller {
 
         disconnect.setOnAction(event -> {
             sourceConnection.stop();
+            main.stop();
         });
 
         showConnections.setOnAction(event -> {
@@ -101,7 +96,7 @@ public class Controller {
         inputField.setOnAction(event -> {
             String message = inputField.getText();
             inputField.clear();
-            messages.appendText(username + ": " + message + "\n");
+            messages.appendText(sourceConnection.getHostName() + ": " + message + "\n");
             try {
                 sourceConnection.broadcastToDiscoveredHosts(MessageUtil.getMessage(MessageUtil.MessageType.MESSAGE, message));
             } catch (Exception e) {
@@ -112,7 +107,7 @@ public class Controller {
         sendMessage.setOnAction(event -> {
             String message = inputField.getText();
             inputField.clear();
-            messages.appendText(username + ": " + message + "\n");
+            messages.appendText(sourceConnection.getHostName() + ": " + message + "\n");
             try {
                 sourceConnection.broadcastToDiscoveredHosts(MessageUtil.getMessage(MessageUtil.MessageType.MESSAGE, message));
             } catch (Exception e) {

@@ -23,6 +23,9 @@ public class Main extends Application {
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()){
             initUsername = result.get();
+        } else{
+            this.stop();
+            return;
         }
 
         FXMLLoader loader = new FXMLLoader();

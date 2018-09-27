@@ -98,9 +98,12 @@ public class P2PConnection {
         int firstAddress = Util.convertIpAddressToInt(Util.getFirstAddress(sourceAddress, sourceSubnetValue));
         int lastAddress = Util.convertIpAddressToInt(Util.getLastAddress(sourceAddress, sourceSubnetValue));
 
-        for (int i = firstAddress; Integer.compareUnsigned(i, lastAddress) <= 0; i++){
+        for (int i = firstAddress+1; Integer.compareUnsigned(i, lastAddress - 1) <= 0; i++){
             String ipAddress = Util.convertIntToIpAddress(i);
-            if (ipAddress.equals(sourceAddress)) continue;
+            if (ipAddress.equals(sourceAddress)){
+                System.out.println(ipAddress);
+                continue;
+            }
             try {
                 sendMessage(ipAddress, message);
             } catch (IOException e) {

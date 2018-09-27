@@ -41,6 +41,7 @@ public class Main extends Application {
     }
 
     public void stop(){
+        P2PConnection.getConnection().stop();
         primaryStage.close();
     }
 

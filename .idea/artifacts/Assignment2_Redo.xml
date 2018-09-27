@@ -1,0 +1,20 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="Assignment2_Redo">
+    <output-path>$PROJECT_DIR$/out/artifacts/Assignment2_Redo</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="sample.Main" />
+        <option name="description" value="" />
+        <option name="htmlPlaceholderId" value="" />
+        <option name="title" value="" />
+        <option name="vendor" value="" />
+        <option name="version" value="" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="Assignment2_Redo.jar">
+        <element id="module-output" name="Assignment2_Redo" />
+      </element>
+    </root>
+  </artifact>
+</component>

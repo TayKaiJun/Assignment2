@@ -50,12 +50,16 @@ public class MessageUtil {
                 e.printStackTrace();
             }
             connection.addHost(address);
+
+            boolean ipAlreadyExist = mapIpToUsername.containsKey(address);
+            String oldName = mapIpToUsername.get(address);
             // Puts IP and address map
             mapIpToUsername.put(address, body);
 
             Log.printLog("Discovered host " + mapIpToUsername.get(address) + "(" + address + ")");
 
-            Controller.writeMessage(mapIpToUsername.get(address) + " has joined the network. Say hi!\n");
+            if (ipAlreadyExist) Controller.writeMessage(oldName + " change username to " + mapIpToUsername.get(address) + "\n");
+            else Controller.writeMessage(mapIpToUsername.get(address) + " has joined the network. Say hi!\n");
         }
         // DISCOVERRESPONSE:
         else if (tag.equalsIgnoreCase("DISCOVERRESPONSE")){
@@ -64,7 +68,7 @@ public class MessageUtil {
             mapIpToUsername.put(address, body);
             Log.printLog("Discovered response from " + mapIpToUsername.get(address) + "(" + address + ")");
 
-            Controller.writeMessage(mapIpToUsername.get(address) + " has joined the network. Say hi!\n");
+            Controller.writeMessage(mapIpToUsername.get(address) + " was discovered on the network. Say hi!\n");
         }
         // MESSAGE: CONTENT
         else if (tag.equalsIgnoreCase("MESSAGE")){

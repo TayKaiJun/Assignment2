@@ -8,6 +8,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 public class P2PConnection {
     public static P2PConnection p2pConnection;
@@ -94,23 +95,34 @@ public class P2PConnection {
      *
      * @param message tagged message (needs to contain the tag)
      */
-    public void broadcastToAllHostsOnNetwork(String message){
-        int firstAddress = Util.convertIpAddressToInt(Util.getFirstAddress(sourceAddress, sourceSubnetValue));
-        int lastAddress = Util.convertIpAddressToInt(Util.getLastAddress(sourceAddress, sourceSubnetValue));
+    public void broadcastToAllHostsOnNetwork(String message, Callable<Void> onComplete, Callable<Void> onError){
+        // Add on complete
+        Thread thread = new Thread(() ->{
+            int firstAddress = Util.convertIpAddressToInt(Util.getFirstAddress(sourceAddress, sourceSubnetValue));
+            int lastAddress = Util.convertIpAddressToInt(Util.getLastAddress(sourceAddress, sourceSubnetValue));
 
-        for (int i = firstAddress+1; Integer.compareUnsigned(i, lastAddress - 1) <= 0; i++){
-            String ipAddress = Util.convertIntToIpAddress(i);
-            if (ipAddress.equals(sourceAddress)){
-                System.out.println(ipAddress);
-                continue;
+            for (int i = firstAddress + 1; Integer.compareUnsigned(i, lastAddress - 1) <= 0; i++){
+                String ipAddress = Util.convertIntToIpAddress(i);
+                if (ipAddress.equals(sourceAddress)) continue;
+                try {
+                    sendMessage(ipAddress, message);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    try {
+                        if (onError != null) onError.call();
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+                }
             }
+            Log.printLog("Broadcasted " + message + " to All Hosts On Network");
             try {
-                sendMessage(ipAddress, message);
-            } catch (IOException e) {
+                if (onComplete != null) onComplete.call();
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-        Log.printLog("Broadcasted " + message + " to All Hosts On Network");
+        });
+        thread.start();
     }
 
     /**
@@ -120,15 +132,28 @@ public class P2PConnection {
      *
      * @param message tagged message (needs to contain the tag)
      */
-    public void broadcastToDiscoveredHosts(String message){
-        for (String host: discoveredHosts){
+    public void broadcastToDiscoveredHosts(String message, Callable<Void> onComplete, Callable<Void> onError){
+        Thread thread = new Thread(() ->{
+            for (String host: discoveredHosts){
+                try {
+                    sendMessage(host, message);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    try {
+                        if (onError != null) onError.call();
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            }
+            Log.printLog("Broadcasted " + message + " to All Discovered Hosts");
             try {
-                sendMessage(host, message);
-            } catch (IOException e) {
+                if(onComplete != null) onComplete.call();
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-        Log.printLog("Broadcasted " + message + " to All Discovered Hosts");
+        });
+        thread.start();
     }
 
     /**
@@ -167,14 +192,18 @@ public class P2PConnection {
      * Stops the connection
      * Broadcast disconnect message to all hosts and clean up sockets and threads
      */
-    public void stop(){
-        broadcastToDiscoveredHosts(MessageUtil.getMessage(MessageUtil.MessageType.DISCONNECT, null));
+    public void stop(Callable<Void> onBroadcastComplete, Callable<Void> onError){
+        broadcastToDiscoveredHosts(MessageUtil.getMessage(MessageUtil.MessageType.DISCONNECT, null), ()->{
+            connListen.stop();
+            socket.close();
+            p2pConnection = null;
+            socket = null;
+            connListen = null;
 
-        connListen.stop();
-        socket.close();
-        p2pConnection = null;
-        socket = null;
-        connListen = null;
+            if(onBroadcastComplete!=null) onBroadcastComplete.call();
+
+            return null;
+        }, onError);
     }
 
     public boolean isNull(){

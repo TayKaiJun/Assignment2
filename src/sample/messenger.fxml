@@ -23,7 +23,7 @@
                   </Menu>
               </menus>
             </MenuBar>
-            <TextArea fx:id="messages" prefHeight="629.0" prefWidth="580.0">
+            <TextArea fx:id="messages" editable="false" prefHeight="629.0" prefWidth="580.0">
                <VBox.margin>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </VBox.margin>

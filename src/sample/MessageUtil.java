@@ -43,8 +43,8 @@ public class MessageUtil {
 
         // DISCOVER: (username)
         if (tag.equalsIgnoreCase("DISCOVER")){
+            // Respond to the discovery message
             try {
-                // Respond to the discovery message
                 connection.sendMessage(address, getMessage(MessageType.DISCOVERRESPONSE, hostName));
             } catch (IOException e) {
                 e.printStackTrace();

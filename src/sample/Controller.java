@@ -39,7 +39,8 @@ public class Controller {
         sourceConnection = P2PConnection.getConnection();
         sourceConnection.setHostName(username);
         // Discovery
-        sourceConnection.broadcastToAllHostsOnNetwork(MessageUtil.getMessage(MessageUtil.MessageType.DISCOVER, username));
+        sourceConnection.broadcastToAllHostsOnNetwork(MessageUtil.getMessage(MessageUtil.MessageType.DISCOVER, username), null, null);
+        messages.appendText("Joined network! Looking for hosts.\n");
 
         changeUsername.setOnAction(event ->{
             TextInputDialog dialog = new TextInputDialog("new user");
@@ -56,20 +57,24 @@ public class Controller {
 
             sourceConnection.setHostName(this.username);
             sourceConnection.removeAllHost();
-            sourceConnection.broadcastToAllHostsOnNetwork(MessageUtil.getMessage(MessageUtil.MessageType.DISCOVER, this.username));
+            sourceConnection.broadcastToAllHostsOnNetwork(MessageUtil.getMessage(MessageUtil.MessageType.DISCOVER, this.username), null, null);
 
             messages.appendText("You have changed your username to " + this.username + " !\n");
         });
 
         reconnect.setOnAction(event -> {
             inputField.setDisable(false);
-            sourceConnection = P2PConnection.getConnection();
-            sourceConnection.setHostName(this.username);
-            sourceConnection.broadcastToAllHostsOnNetwork(MessageUtil.getMessage(MessageUtil.MessageType.DISCOVER, this.username));
+            if(!sourceConnection.isNull()) sourceConnection.stop(() -> {
+                sourceConnection = P2PConnection.getConnection();
+                sourceConnection.setHostName(this.username);
+                sourceConnection.broadcastToAllHostsOnNetwork(MessageUtil.getMessage(MessageUtil.MessageType.DISCOVER, this.username), null, null);
+
+                messages.appendText("You have reconencted to the network!\n");
+                return null;
+            }, null);
         });
 
         disconnect.setOnAction(event -> {
-            sourceConnection.stop();
             main.stop();
         });
 
@@ -96,23 +101,21 @@ public class Controller {
         inputField.setOnAction(event -> {
             String message = inputField.getText();
             inputField.clear();
-            messages.appendText(sourceConnection.getHostName() + ": " + message + "\n");
-            try {
-                sourceConnection.broadcastToDiscoveredHosts(MessageUtil.getMessage(MessageUtil.MessageType.MESSAGE, message));
-            } catch (Exception e) {
+            messages.appendText(username + ": " + message + "\n");
+            sourceConnection.broadcastToDiscoveredHosts(MessageUtil.getMessage(MessageUtil.MessageType.MESSAGE, message), null, () ->{
                 messages.appendText("Failed to send\n");
-            }
+                return null;
+            });
         });
 
         sendMessage.setOnAction(event -> {
             String message = inputField.getText();
             inputField.clear();
-            messages.appendText(sourceConnection.getHostName() + ": " + message + "\n");
-            try {
-                sourceConnection.broadcastToDiscoveredHosts(MessageUtil.getMessage(MessageUtil.MessageType.MESSAGE, message));
-            } catch (Exception e) {
+            messages.appendText(username + ": " + message + "\n");
+            sourceConnection.broadcastToDiscoveredHosts(MessageUtil.getMessage(MessageUtil.MessageType.MESSAGE, message), null, () -> {
                 messages.appendText("Failed to send\n");
-            }
+                return null;
+            });
         });
     }
 

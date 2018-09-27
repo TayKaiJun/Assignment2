@@ -1,6 +1,7 @@
 package sample;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -41,8 +42,12 @@ public class Main extends Application {
     }
 
     public void stop(){
-        P2PConnection.getConnection().stop();
-        primaryStage.close();
+        P2PConnection.getConnection().stop(() ->{
+            Platform.runLater(()->{
+                primaryStage.close();
+            });
+            return null;
+        }, null);
     }
 
 
